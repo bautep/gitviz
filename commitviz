@@ -1,0 +1,18 @@
+#! /usr/bin/bash
+#
+#
+DAG=dag.dot
+echo "digraph D  {" > $DAG
+#
+# add edges to refs
+#
+# print refsnames as boxes (only local)
+git for-each-ref \
+	--format="C%(objectname:short)->\"%(refname:short)\"[style=dotted;arrowhead=none];\"%(refname:short)\" [label=\"%(refname:short)\",shape=record];"  \
+	| grep -v "/" >> $DAG
+
+# nodes with label 'commitline'
+git log --all --pretty=format:"{C%p}->C%h;C%h[label=\"%f\"]" | sed -e "s/ /,C/" >> $DAG
+
+echo "}" >> $DAG
+dot -Tpdf dag.dot -o dag.pdf
