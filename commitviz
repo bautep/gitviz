@@ -8,11 +8,23 @@ echo "digraph D  {" > $DAG
 #
 # print refsnames as boxes (only local)
 git for-each-ref \
-	--format="C%(objectname:short)->\"%(refname:short)\"[style=dotted;arrowhead=none];\"%(refname:short)\" [label=\"%(refname:short)\",shape=record];"  \
+	--format="\"%(objectname:short)\"->\"%(refname:short)\"[style=dotted;arrowhead=none];\"%(refname:short)\" [label=\"%(refname:short)\",shape=record];"  \
 	| grep -v "/" >> $DAG
 
 # nodes with label 'commitline'
-git log --all --pretty=format:"{C%p}->C%h;C%h[label=\"%f\"]" | sed -e "s/ /,C/" >> $DAG
+git log --full-history --pretty=format:"{\"%p\"}->\"%h\";\"%h\"[label=\"%f\"];" | sed -e "s/ /\",\"/" >> $DAG
+
+# use this if you want to see commit ids
+#git log --all --pretty=format:"{\"%p\"}->\"%h\";" | sed -e "s/ /\",\"/" >> $DAG
+
+#
+# the read construct is needed to properly read the last commit
+a=""
+git log --reverse --merges --pretty=format:"%h" master | while read b || [ -n "$b" ]
+do
+	echo "\"$a\"->\"$b\"[color=red,penwidth=3.0];" >> $DAG
+	a=$b
+done
 
 echo "}" >> $DAG
 dot -Tpdf dag.dot -o dag.pdf
