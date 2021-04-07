@@ -1,6 +1,7 @@
 #! /usr/bin/bash
 #
 #
+REDLINED=master
 DAG=dag.dot
 echo "digraph D  {" > $DAG
 #
@@ -8,11 +9,12 @@ echo "digraph D  {" > $DAG
 #
 # print refsnames as boxes (only local)
 git for-each-ref \
-	--format="\"%(objectname:short)\"->\"%(refname:short)\"[style=dotted;arrowhead=none];\"%(refname:short)\" [label=\"%(refname:short)\",shape=record];"  \
-	| grep -v "/" >> $DAG
+	--format="\"%(objectname:short)\"->\"%(refname:short)\"[style=dotted;arrowhead=none];\"%(refname:short)\" [label=\"%(refname:short)\",shape=record];" >> $DAG
 
+#
 # nodes with label 'commitline'
-git log --reflog --full-history --pretty=format:"{\"%p\"}->\"%h\";\"%h\"[label=\"%f\"];" | sed -e "s/ /\",\"/" >> $DAG
+#
+git log --all --full-history --pretty=format:"{\"%p\"}->\"%h\";\"%h\"[label=\"%f\"];" | sed -e "s/ /\",\"/" >> $DAG
 
 # use this if you want to see commit ids
 #git log --all --pretty=format:"{\"%p\"}->\"%h\";" | sed -e "s/ /\",\"/" >> $DAG
@@ -20,7 +22,7 @@ git log --reflog --full-history --pretty=format:"{\"%p\"}->\"%h\";\"%h\"[label=\
 #
 # the read construct is needed to properly read the last commit
 a=""
-git log --reverse --merges --pretty=format:"%h" master | while read b || [ -n "$b" ]
+git log --reverse --merges --pretty=format:"%h" $REDLINED | while read b || [ -n "$b" ]
 do
 	echo "\"$a\"->\"$b\"[color=red,penwidth=3.0];" >> $DAG
 	a=$b
