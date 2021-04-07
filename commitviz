@@ -12,7 +12,7 @@ git for-each-ref \
 	| grep -v "/" >> $DAG
 
 # nodes with label 'commitline'
-git log --full-history --pretty=format:"{\"%p\"}->\"%h\";\"%h\"[label=\"%f\"];" | sed -e "s/ /\",\"/" >> $DAG
+git log --reflog --full-history --pretty=format:"{\"%p\"}->\"%h\";\"%h\"[label=\"%f\"];" | sed -e "s/ /\",\"/" >> $DAG
 
 # use this if you want to see commit ids
 #git log --all --pretty=format:"{\"%p\"}->\"%h\";" | sed -e "s/ /\",\"/" >> $DAG
